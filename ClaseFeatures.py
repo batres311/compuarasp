@@ -1,5 +1,5 @@
 import librosa
-import librosa.display
+#import librosa.display
 import ClaseAudio2
 import matplotlib.pyplot as plt
 import yaml
@@ -71,7 +71,7 @@ class Features():
         plt.close()
         
 
-    def amplitudeenvelope(y,res,archivo):
+    def amplitudeenvelope(y,sr,res,archivo):
         
         # number of frames in amplitude envelope
         ae_y = Audico.fancy_amplitude_envelope(y, FRAME_SIZE, HOP_LENGTH)
@@ -79,26 +79,26 @@ class Features():
 
         #Visualizing amplitud envelope
         frames = range(len(ae_y))
-        t = librosa.frames_to_time(frames, hop_length=HOP_LENGTH,n_fft=N_FTT)
+        t = librosa.frames_to_time(frames, sr=sr,hop_length=HOP_LENGTH,n_fft=N_FTT)
 
         fig, ax = plt.subplots()
-        img=librosa.display.waveshow(y, alpha=0.5)
+        img=librosa.display.waveshow(y,sr=sr,alpha=0.5)
         plt.plot(t, ae_y, color="r")
         #plt.ylim((-1, 1))
         ax.set(title="Amplitude envelope")
         ClaseAudio2.CargaeImagenAudio.guardarimagen(AMPLITUDEENV_path_export1,AMPLITUDEENV_path_export2,res,'AmplitudEnvelope',fig,archivo)
         plt.close()
 
-    def RootMeanSquaredError(y,res,archivo):
+    def RootMeanSquaredError(y,sr,res,archivo):
         
         rms_y = librosa.feature.rms(y=y, frame_length=FRAME_SIZE, hop_length=HOP_LENGTH)[0]
         #Visualise RMSE + waveform
         frames = range(len(rms_y))
-        t = librosa.frames_to_time(frames, hop_length=HOP_LENGTH)
+        t = librosa.frames_to_time(frames,sr=sr, hop_length=HOP_LENGTH)
         # rms energy is graphed in red
         plt.figure(figsize=(15, 17))
         fig, ax = plt.subplots()
-        librosa.display.waveshow(y, alpha=0.5)
+        librosa.display.waveshow(y,sr=sr,alpha=0.5)
         plt.plot(t, rms_y, color="r")
         #plt.ylim((-1, 1))
         ax.set(title="RMS energy")
@@ -139,24 +139,24 @@ class Features():
         ClaseAudio2.CargaeImagenAudio.guardarimagen(FvsA_path_export1,FvsA_path_export2,res,'FvsA',fig,archivo)
         plt.close()
 
-    def Spectrogram(S_db, res,archivo):
+    def Spectrogram(S_db,sr,res,archivo):
         
         # SPECTROGRAM representation - object-oriented interface 
         plt.figure(figsize=(25, 10))
         fig, ax = plt.subplots() 
-        img = librosa.display.specshow(S_db, x_axis='time', y_axis='linear') 
-        img = librosa.display.specshow(S_db, x_axis='time', y_axis='log') 
+        #img = librosa.display.specshow(S_db, x_axis='time', y_axis='linear') 
+        img = librosa.display.specshow(S_db,sr=sr, x_axis='time', y_axis='log') 
         plt.colorbar(format="%+2.f")
         ax.set(title='SPECTROGRAM') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(SPECTROGRAM_path_export1,SPECTROGRAM_path_export2,res,'Spectrogram',fig,archivo)
         plt.close()
 
-    def GreySpectrogram(S_db, res,archivo):
+    def GreySpectrogram(S_db,sr,res,archivo):
         
         # SPECTROGRAM representation - object-oriented interface 
         fig, ax = plt.subplots() 
-        img = librosa.display.specshow(S_db, x_axis='time', y_axis='linear') 
-        img = librosa.display.specshow(S_db, x_axis='time', y_axis='log', cmap='gray_r') 
+        #img = librosa.display.specshow(S_db, x_axis='time', y_axis='linear') 
+        img = librosa.display.specshow(S_db,sr=sr, x_axis='time', y_axis='log', cmap='gray_r') 
         plt.colorbar(format="%+2.f")
         ax.set(title='GREY SPECTROGRAM') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(GREYSPECTROGRAM_path_export1,GREYSPECTROGRAM_path_export2,res,'Grey Spectrogram',fig,archivo)
@@ -175,7 +175,7 @@ class Features():
                                 y_axis="mel", 
                                 sr=sr)
         plt.colorbar(format="%+2.f")
-        ax.set(title='SPECTROGRAM') 
+        ax.set(title='MEL SPECTROGRAM') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(MELSPECTROGRAM_path_export1,MELSPECTROGRAM_path_export2,res,'MelSpectrogram',fig,archivo)
         plt.close()
         
@@ -184,7 +184,7 @@ class Features():
         #CHROMAGRAM representation - object-oriented interface 
         CHROMAGRAM = librosa.feature.chroma_cqt(y=y, sr=sr) #,n_fft=2048
         fig, ax = plt.subplots() 
-        img = librosa.display.specshow(CHROMAGRAM, y_axis='chroma', x_axis='time') 
+        img = librosa.display.specshow(CHROMAGRAM,sr=sr, y_axis='chroma', x_axis='time') 
         plt.colorbar(format="%+2.f")
         ax.set(title='CHROMAGRAM') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(CHROMAGRAM_path_export1,CHROMAGRAM_path_export2,res,'Chromogram',fig,archivo)
@@ -195,7 +195,7 @@ class Features():
         #MFCC representation - object-oriented interface 
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13, n_fft=N_FTT,fmin=20) #n_fft=1200
         fig, ax = plt.subplots() 
-        img = librosa.display.specshow(mfccs, x_axis='time') 
+        img = librosa.display.specshow(mfccs,sr=sr,x_axis='time') 
         plt.colorbar(format="%+2.f")
         ax.set(title='Mel-frequency cepstral coefficients (MFCCs)') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(MFCC_path_export1,MFCC_path_export2,res,'MFCCs',fig,archivo)
@@ -209,7 +209,7 @@ class Features():
 
         plt.figure() #figsize=(25, 10)
         fig, ax = plt.subplots() 
-        img = librosa.display.specshow(delta_mfccs, x_axis='time',sr=sr) 
+        img = librosa.display.specshow(delta_mfccs,x_axis='time',sr=sr) 
         plt.colorbar(format="%+2.f")
         ax.set(title='Delta Mel-frequency cepstral coefficients (MFCCs)') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(DELTA_MFCC_path_export1,DELTA_MFCC_path_export2,res,'DeltaMFCCs',fig,archivo)
@@ -221,7 +221,7 @@ class Features():
 
         plt.figure() #figsize=(25, 10)
         fig, ax = plt.subplots() 
-        img = librosa.display.specshow(delta2_mfccs, x_axis='time',sr=sr) 
+        img = librosa.display.specshow(delta2_mfccs,x_axis='time',sr=sr) 
         plt.colorbar(format="%+2.f")
         ax.set(title='Delta2 Mel-frequency cepstral coefficients (MFCCs)') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(DELTA2_MFCC_path_export1,DELTA2_MFCC_path_export2,res,'Delta2MFCCs',fig,archivo)
@@ -238,7 +238,7 @@ class Features():
         ber_y =ratio.band_energy_ratio (y_spec, 2000, sr)
         #Visualise Band Energy Ratio
         frames = range(len(ber_y))
-        t = librosa.frames_to_time(frames, hop_length=HOP_SIZE,n_fft=N_FTT)#
+        t = librosa.frames_to_time(frames,sr=sr,hop_length=HOP_SIZE,n_fft=N_FTT)#
 
         plt.figure(figsize=(25, 10))
         fig, ax = plt.subplots()
@@ -277,11 +277,11 @@ class Features():
         fig, ax = plt.subplots(nrows=2, sharex=True)
         img1 = librosa.display.specshow(librosa.amplitude_to_db(S,
                                                         ref=np.max),
-                                y_axis='log', x_axis='time', ax=ax[0])
+                                y_axis='log', x_axis='time', ax=ax[0],sr=sr)
         fig.colorbar(img1, ax=[ax[0]], format='%+2.0f dB')
         ax[0].set(title='Power spectrogram')
         ax[0].label_outer()
-        img2 = librosa.display.specshow(contrast, x_axis='time', ax=ax[1])
+        img2 = librosa.display.specshow(contrast, x_axis='time', ax=ax[1],sr=sr)
         fig.colorbar(img2, ax=[ax[1]])
         ax[1].set(ylabel='Frequency bands', title='Spectral contrast')
         ClaseAudio2.CargaeImagenAudio.guardarimagen(SpecContrast_path_export1,SpecContrast_path_export2,res,'Spectral Contrast',fig,archivo)
@@ -309,9 +309,9 @@ class Features():
         
 
         fig, ax = plt.subplots()
-        librosa.display.specshow(S_db, y_axis='log', x_axis='time', ax=ax)
-        ax.plot(librosa.times_like(rolloff,n_fft=N_FTT), rolloff[0], label='Roll-off frequency (0.99)')#
-        ax.plot(librosa.times_like(rolloff,n_fft=N_FTT), rolloff_min[0], color='w',
+        librosa.display.specshow(S_db, y_axis='log', x_axis='time', ax=ax,sr=sr)
+        ax.plot(librosa.times_like(rolloff,n_fft=N_FTT,sr=sr), rolloff[0], label='Roll-off frequency (0.99)')#
+        ax.plot(librosa.times_like(rolloff,n_fft=N_FTT,sr=sr), rolloff_min[0], color='w',
                 label='Roll-off frequency (0.01)')#
         ax.legend(loc='lower right')
         ax.set(title='log Power spectrogram')
@@ -320,11 +320,11 @@ class Features():
 
         return S
 
-    def PolyFeatures(S,res,archivo):
+    def PolyFeatures(S,sr,res,archivo):
         
-        p0 = librosa.feature.poly_features(S=S, order=0)
-        p1 = librosa.feature.poly_features(S=S, order=1)
-        p2 = librosa.feature.poly_features(S=S, order=2)
+        p0 = librosa.feature.poly_features(S=S,sr=sr,order=0)
+        p1 = librosa.feature.poly_features(S=S,sr=sr,order=1)
+        p2 = librosa.feature.poly_features(S=S,sr=sr,order=2)
 
         fig, ax = plt.subplots(nrows=4, sharex=True, figsize=(8, 8))
         times = librosa.times_like(p0,n_fft=N_FTT)
@@ -343,7 +343,7 @@ class Features():
         ax[2].set(ylabel='Quadratic term')
         ax[2].legend()
         librosa.display.specshow(librosa.amplitude_to_db(S, ref=np.max),
-                                y_axis='log', x_axis='time', ax=ax[3])
+                                y_axis='log', x_axis='time', ax=ax[3],sr=sr)
         ClaseAudio2.CargaeImagenAudio.guardarimagen(PolyFeatures_path_export1,PolyFeatures_path_export2,res,'Poly features',fig,archivo)
         plt.close()
 
@@ -354,11 +354,11 @@ class Features():
         
         fig, ax = plt.subplots(nrows=2, sharex=True)
         img1 = librosa.display.specshow(tonnetz,
-                                        y_axis='tonnetz', x_axis='time', ax=ax[0],n_fft=2048)
+                                        y_axis='tonnetz', x_axis='time', ax=ax[0],n_fft=2048,sr=sr)
         ax[0].set(title='Tonal Centroids (Tonnetz)')
         ax[0].label_outer()
         img2 = librosa.display.specshow(librosa.feature.chroma_stft(y=y, sr=sr,n_fft=2048),
-                                        y_axis='chroma', x_axis='time', ax=ax[1])
+                                        y_axis='chroma', x_axis='time', ax=ax[1],sr=sr)
         ax[1].set(title='Chroma')
         fig.colorbar(img1, ax=[ax[0]])
         fig.colorbar(img2, ax=[ax[1]])

@@ -14,7 +14,7 @@ class CargaeImagenAudio():
         self.fig=fig
         self.archivo=archivo
     def LoadAudio_Turn2Decibels(clip):
-        y, sr = librosa.load(clip, sr=48000) 
+        y, sr = librosa.load(clip, sr=44100) 
         D = librosa.stft(y) 
         # STFT of y 
         S_db = librosa.amplitude_to_db(np.abs(D), ref=np.max) 

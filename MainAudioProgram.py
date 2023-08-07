@@ -1,18 +1,19 @@
 import pyaudio #Libreria que ayuda para obtener el audio y darle formato
 import wave  #Permite leer y escribir archivos wav
-import winsound #Permite acceder a la maquinaria básica de reproducción de sonidos proporcionada por la plataformas Windows.
 import scipy.io.wavfile as waves #libreria importante para los datos del audio
 import yaml
 import os
 import shutil #libreria para mover archivos a diferentes carpetas
 from datetime import datetime
-import keyboard as kb
 import ClaseAudio2
 import ClaseFeatures
 import pandas as pd
 import numpy as np
 from pydub import AudioSegment
 import librosa
+import RPi.GPIO as GPIO
+from ctypes import *
+from contextlib import contextmanager
 
 with open("Variables.yaml", "r") as f:
     yaml_content = yaml.full_load(f)
@@ -36,6 +37,8 @@ HOP_SIZE= yaml_content["Hop_size"]
 
 NOMBREGRABACION=yaml_content["NomGrabacion"]
 i=0
+Empezar = 11
+Detener  = 13
 
 duracion=5 #Periodo de grabacion de 5 segundos
 FechaHoraAUDIO=datetime.now()
@@ -43,6 +46,13 @@ FechaHoraAUDIO=FechaHoraAUDIO.replace(microsecond=0)
 FechaHoraAUDIOFormat=FechaHoraAUDIO.strftime("%Y_%m_%d_%H_%M_%S")
 archivo=NOMBREGRABACION+"_"+FechaHoraAUDIOFormat +".wav"
 
+def setup():
+	GPIO.setwarnings(False) 
+	GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
+	   # Set Green Led Pin mode to output
+	GPIO.setup(Detener, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Set Red Led Pin mode to output
+	GPIO.setup(Empezar, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
+        
 def envelope(y, rate, threshold):
     mask = []
     y = pd.Series(y).apply(np.abs)
@@ -65,41 +75,56 @@ def envelope2(y, rate, threshold):
             mask.append(False)
     return np.array(mask)
 
-def loop():
-    while True:
-       
-        if kb.is_pressed('g'):
-            audio=pyaudio.PyAudio() #Iniciamos pyaudio
-            #Abrimos corriente o flujo
-            stream=audio.open(format=pyaudio.paInt16,channels=CHANNELS,
-                                rate=FRAME_RATE,input=True, #rate es la frecuencia de muestreo 44.1KHz
-                                frames_per_buffer=FRAME_SIZE)
-                                
-            print("Grabando ...") #Mensaje de que se inicio a grabar
-            print("Presiona p para parar carnal") #Mensaje de que se inicio a grabar
-            frames=[] #Aqui guardamos la grabacion
+ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
 
+def py_error_handler(filename, line, function, err, fmt):
+    pass
+
+c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
+
+@contextmanager
+def noalsaerr():
+    asound = cdll.LoadLibrary('libasound.so')
+    asound.snd_lib_error_set_handler(c_error_handler)
+    yield
+    asound.snd_lib_error_set_handler(None)
+
+with noalsaerr():
+    audio=pyaudio.PyAudio() #Iniciamos pyaudio
+#Abrimos corriente o flujo
+
+def loop(audio):
+    while True: 
+        if GPIO.input(Empezar)==0:                                                                                                                                                                                                                                                                                  
+            stream=audio.open(format=pyaudio.paInt16,channels=2,
+                                rate=44100,input=True, #rate es la frecuencia de muestreo 44.1KHz
+                                frames_per_buffer=1024)
+                        
+            print("Grabando ...") #Mensaje de que se inicio a grabar
+            frames=[] #Aqui guardamos la grabacion
+            #for i in range(0,int(44100/1024*duracion)):
             while True:
-                data=stream.read(FRAME_SIZE)
+                data=stream.read(1024)
                 frames.append(data)
-                
-                if kb.is_pressed('p'):
-                    print('se presionó [p]arar!')
+
+                if GPIO.input(Detener)==0: 
                     stream.stop_stream()    #Detener grabacion
                     stream.close()          #Cerramos stream
                     audio.terminate()
+                    #print("La grabacion ha terminado ") #Mensaje de fin de grabación
 
                     waveFile=wave.open(archivo,'wb') #Creamos nuestro archivo
-                    waveFile.setnchannels(CHANNELS) #Se designan los canales
+                    waveFile.setnchannels(2) #Se designan los canales
                     waveFile.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-                    waveFile.setframerate(FRAME_RATE) #Pasamos la frecuencia de muestreo
+                    waveFile.setframerate(44100) #Pasamos la frecuencia de muestreo
                     waveFile.writeframes(b''.join(frames))
                     waveFile.close() #Cerramos el archivo
                     break
             break
-    
+
+setup()   
 print("Listo para grabar presiona g")
-loop()	
+loop(audio)	
 print("La grabacion ha terminado ") #Mensaje de fin de grabación
 #clip=(r'C:\Users\BHC4SLP\Documents\Python Projects\Proyecto2-GraficaAudio\PruebaAudio1.wav')
 #winsound.PlaySound(archivo,winsound.SND_FILENAME)
@@ -152,17 +177,17 @@ os.remove("New"+"clean"+"Grab"+str(i)+".wav")
 
 ClaseFeatures.Features.waveform(y,sr,res,archivo)
 
-ClaseFeatures.Features.amplitudeenvelope(y,res,archivo)
+ClaseFeatures.Features.amplitudeenvelope(y,sr,res,archivo)
 
-t=ClaseFeatures.Features.RootMeanSquaredError(y,res,archivo)
+t=ClaseFeatures.Features.RootMeanSquaredError(y,sr,res,archivo)
 
 ClaseFeatures.Features.ZeroCrossingRate(y,res,t,archivo)
 
 ClaseFeatures.Features.FreqAmp(y,sr,res,archivo)
 
-ClaseFeatures.Features.Spectrogram(S_db,res,archivo)
+ClaseFeatures.Features.Spectrogram(S_db,sr,res,archivo)
 
-ClaseFeatures.Features.GreySpectrogram(S_db,res,archivo)
+ClaseFeatures.Features.GreySpectrogram(S_db,sr,res,archivo)
 
 ClaseFeatures.Features.MelSpectrogram(y,sr,res,archivo)
 
@@ -184,6 +209,6 @@ ClaseFeatures.Features.SpectralContrast(y,sr,res,archivo)
 
 S=ClaseFeatures.Features.SpectralRollOff(y,S_db,sr,res,archivo)
 
-ClaseFeatures.Features.PolyFeatures(S,res,archivo)
+ClaseFeatures.Features.PolyFeatures(S,sr,res,archivo)
 
 ClaseFeatures.Features.Tonnetz(y,sr,res,archivo)
