@@ -1,0 +1,23 @@
+amplitude envelope/
+band energy ratio/
+bandwidth/
+BlackDecker/
+Bosch/
+chromagram/
+delta mfccs/
+delta2 mfccs/
+FrequencyAmplitude/
+grey spectrogram/
+mel spectrogram/
+mfcc/
+poly features/
+root mean square energy/
+spectrogram/
+spectral centroid/
+spectral contrast/
+spectral roll off/
+tonnetz/
+waveform/
+zero croosing rate/
+.ipynb_checkpoints/
+__pycache__/
