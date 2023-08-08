@@ -34,11 +34,17 @@ NUMBER_MELS = yaml_content["Number_Mels"]
 N_FTT = yaml_content["N_fft"]
 N_MFCC = yaml_content["Number_MFCCs"]
 HOP_SIZE= yaml_content["Hop_size"]
+FRAMESPERBUFFER= yaml_content["FramesPerBuffer"]
+
+THRESHOLD1= yaml_content["Threshold1"]
+THRESHOLD2= yaml_content["Threshold2"]
+STARTSEC= yaml_content["StartSec"]
+ENDSEC= yaml_content["EndSec"]
+Empezar = yaml_content["BotonGrabar"]
+Detener = yaml_content["BotonDetener"]
 
 NOMBREGRABACION=yaml_content["NomGrabacion"]
 i=0
-Empezar = 11
-Detener  = 13
 
 duracion=5 #Periodo de grabacion de 5 segundos
 FechaHoraAUDIO=datetime.now()
@@ -96,15 +102,15 @@ with noalsaerr():
 def loop(audio):
     while True: 
         if GPIO.input(Empezar)==0:                                                                                                                                                                                                                                                                                  
-            stream=audio.open(format=pyaudio.paInt16,channels=2,
-                                rate=44100,input=True, #rate es la frecuencia de muestreo 44.1KHz
-                                frames_per_buffer=1024)
+            stream=audio.open(format=pyaudio.paInt16,channels=CHANNELS,
+                                rate=FRAME_RATE,input=True, #rate es la frecuencia de muestreo 44.1KHz
+                                frames_per_buffer=FRAMESPERBUFFER)
                         
             print("Grabando ...") #Mensaje de que se inicio a grabar
             frames=[] #Aqui guardamos la grabacion
             #for i in range(0,int(44100/1024*duracion)):
             while True:
-                data=stream.read(1024)
+                data=stream.read(FRAMESPERBUFFER)
                 frames.append(data)
 
                 if GPIO.input(Detener)==0: 
@@ -114,9 +120,9 @@ def loop(audio):
                     #print("La grabacion ha terminado ") #Mensaje de fin de grabación
 
                     waveFile=wave.open(archivo,'wb') #Creamos nuestro archivo
-                    waveFile.setnchannels(2) #Se designan los canales
+                    waveFile.setnchannels(CHANNELS) #Se designan los canales
                     waveFile.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-                    waveFile.setframerate(44100) #Pasamos la frecuencia de muestreo
+                    waveFile.setframerate(FRAME_RATE) #Pasamos la frecuencia de muestreo
                     waveFile.writeframes(b''.join(frames))
                     waveFile.close() #Cerramos el archivo
                     break
@@ -143,11 +149,11 @@ else:
      os.rename(CarpetaRoBlackDecker+"/"+archivo, CarpetaRoBlackDecker+"/"+CarpetaRoBlackDecker+archivo)   
 
 
-mask = envelope(signal,sample_rate, 0.003)#Bosch=0.004,0.0025
+mask = envelope(signal,sample_rate, THRESHOLD1)#Bosch=0.004,0.0025
 waves.write(filename="clean"+"Grab"+str(i)+".wav", rate=sample_rate, data=signal[mask])
 filee="clean"+"Grab"+str(i)+".wav"
-signal1, rate1 = librosa.load("clean"+"Grab"+str(i)+".wav", sr=44100)
-mask2 = envelope2(signal1, rate1, 0.016)#Bosch=0.0095,0.0097
+signal1, rate1 = librosa.load("clean"+"Grab"+str(i)+".wav", sr=FRAME_RATE)
+mask2 = envelope2(signal1, rate1, THRESHOLD2)#Bosch=0.0095,0.0097
 waves.write(filename="New"+"clean"+"Grab"+str(i)+".wav", rate=rate1, data=signal1[mask2])
 filee2="New"+"clean"+"Grab"+str(i)+".wav"
     
@@ -157,11 +163,8 @@ AudioSegment.converter="ffmpeg.exe"
 AudioSegment.ffmpeg="ffmpeg.exe"
 AudioSegment.ffprobe="ffprobe.exe"
 
-startseg=0
-endsec=1
-
-StartTime=startseg*1000
-EndTime=endsec*1000
+StartTime=STARTSEC*1000
+EndTime=ENDSEC*1000
 
 extract=sound[StartTime:EndTime]
 extract.export(base, format="wav")

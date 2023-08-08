@@ -64,12 +64,20 @@ CarpetasROW:
  BOSCH: "Bosch"
  BLACKDECKER: "BlackDecker"
  
+Threshold1: 0.003
+Threshold2: 0.016
+StartSec: 0
+EndSec: 1
+BotonGrabar: 11
+BotonDetener: 13
+FramesPerBuffer: 1024
 Frame_size: 2048 #Tamaño de los espacios de audio
 Hop_lenght: 512
 Hop_size: 512 #Tamaño que recorre el audio en cada espacio de audio debe ser menor al framesize
+SplitFrequency: 2000
 Frame_rate: 44100
 Channels: 2
 Number_Mels: 90
-N_fft: 2000  #n_fft = the number of (output) frequency bins,n_fft is treated as the frame length
+N_fft: 2048 #2000 n_fft = the number of (output) frequency bins,n_fft is treated as the frame length
 Number_MFCCs: 13 
 NomGrabacion: "Audio"

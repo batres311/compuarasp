@@ -51,6 +51,8 @@ Tonnetz_path_export2=yaml_content["Tonnetz"]["Carpetanok"]
 FRAME_SIZE = yaml_content["Frame_size"]
 HOP_LENGTH = yaml_content["Hop_lenght"]
 N_FTT = yaml_content["N_fft"]
+NUMOFMFCC = yaml_content["Number_MFCCs"]
+SPLITFREQUENCY = yaml_content["SplitFrequency"]
 
 class Features():
     #Waveform
@@ -193,7 +195,7 @@ class Features():
     def MFCCs(y,sr,res,archivo):
         
         #MFCC representation - object-oriented interface 
-        mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13, n_fft=N_FTT,fmin=20) #n_fft=1200
+        mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=NUMOFMFCC, n_fft=N_FTT) #n_fft=1200
         fig, ax = plt.subplots() 
         img = librosa.display.specshow(mfccs,sr=sr,x_axis='time') 
         plt.colorbar(format="%+2.f")
@@ -232,10 +234,9 @@ class Features():
         HOP_SIZE=512
         y_spec = librosa.stft(y, n_fft=N_FTT, hop_length=HOP_SIZE)
 
-        split_frequency_bin =Audico.calculate_split_frequency_bin(2000, 44100, 2050)#1025
+        split_frequency_bin =Audico.calculate_split_frequency_bin(SPLITFREQUENCY, sr, 2050)#1025
         
-
-        ber_y =ratio.band_energy_ratio (y_spec, 2000, sr)
+        ber_y =ratio.band_energy_ratio (y_spec,SPLITFREQUENCY, sr)
         #Visualise Band Energy Ratio
         frames = range(len(ber_y))
         t = librosa.frames_to_time(frames,sr=sr,hop_length=HOP_SIZE,n_fft=N_FTT)#
@@ -327,7 +328,7 @@ class Features():
         p2 = librosa.feature.poly_features(S=S,sr=sr,order=2)
 
         fig, ax = plt.subplots(nrows=4, sharex=True, figsize=(8, 8))
-        times = librosa.times_like(p0,n_fft=N_FTT)
+        times = librosa.times_like(p0,sr=sr)
         ax[0].plot(times, p0[0], label='order=0', alpha=0.8)
         ax[0].plot(times, p1[1], label='order=1', alpha=0.8)
         ax[0].plot(times, p2[2], label='order=2', alpha=0.8)
@@ -354,10 +355,10 @@ class Features():
         
         fig, ax = plt.subplots(nrows=2, sharex=True)
         img1 = librosa.display.specshow(tonnetz,
-                                        y_axis='tonnetz', x_axis='time', ax=ax[0],n_fft=2048,sr=sr)
+                                        y_axis='tonnetz', x_axis='time', ax=ax[0],sr=sr)
         ax[0].set(title='Tonal Centroids (Tonnetz)')
         ax[0].label_outer()
-        img2 = librosa.display.specshow(librosa.feature.chroma_stft(y=y, sr=sr,n_fft=2048),
+        img2 = librosa.display.specshow(librosa.feature.chroma_cqt(y=y, sr=sr),
                                         y_axis='chroma', x_axis='time', ax=ax[1],sr=sr)
         ax[1].set(title='Chroma')
         fig.colorbar(img1, ax=[ax[0]])
