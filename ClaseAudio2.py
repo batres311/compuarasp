@@ -2,17 +2,22 @@ import numpy as np
 import librosa
 import os
 import yaml
+import pandas as pd
 
 class CargaeImagenAudio():
-    def __init__(self,clip,path_export1,path_export2,res,NombreImag,fig,archivo):
+    def __init__(self,clip,y,rate,threshold, path_export1,path_export2,res,NombreImag,fig,archivo):
         
         self.clip=clip
+        self.y=y
+        self.rate=rate
+        self.threshold=threshold
         self.path_export1=path_export1
         self.path_export2=path_export2
         self.res=res  
         self.NombreImag=NombreImag 
         self.fig=fig
         self.archivo=archivo
+        
     def LoadAudio_Turn2Decibels(clip):
         y, sr = librosa.load(clip, sr=44100) 
         D = librosa.stft(y) 
@@ -21,6 +26,28 @@ class CargaeImagenAudio():
         #, ref=np.max
 
         return y,S_db,sr
+    
+    def envelope(y, rate, threshold):
+        mask = []
+        y = pd.Series(y).apply(np.abs)
+        y_mean = y.rolling(window=int(rate/100), min_periods=1, center=True).mean()
+        for mean in y_mean:
+            if mean > threshold:
+                mask.append(True)
+            else:
+                mask.append(False)
+        return np.array(mask)
+    
+    def envelope2(y, rate, threshold):
+        mask = []
+        y = pd.Series(y).apply(np.abs)
+        y_mean = y.rolling(window=int(rate/100), min_periods=1, center=True).mean()
+        for mean in y_mean:
+            if mean < threshold:
+                mask.append(True)
+            else:
+                mask.append(False)
+        return np.array(mask)
     
     def guardarimagen(path_export1,path_export2,res,NombreImag,fig,archivo):
     
