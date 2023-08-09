@@ -83,60 +83,68 @@ waves.write(filename="New"+"clean"+"Grab"+str(i)+".wav", rate=rate1, data=signal
 filee2="New"+"clean"+"Grab"+str(i)+".wav"
     
 #signal2, rate2 = librosa.load("NewcleanGrab1.wav")
-sound = AudioSegment.from_file(file="New"+"clean"+"Grab"+str(i)+".wav",format="wav")
-AudioSegment.converter="ffmpeg.exe"
-AudioSegment.ffmpeg="ffmpeg.exe"
-AudioSegment.ffprobe="ffprobe.exe"
 
-StartTime=STARTSEC*1000
-EndTime=ENDSEC*1000
+if len(mask2)>=FRAME_RATE*ENDSEC:
 
-extract=sound[StartTime:EndTime]
-extract.export(base, format="wav")
-y,S_db,sr=ClaseAudio2.CargaeImagenAudio.LoadAudio_Turn2Decibels(base)#"newfile"+str(i)+".wav"
-if res=='ok' or res=='OK' or res=='Ok':
-    shutil.move(base, Bosch_path_export+"/"+base)
-    os.rename(Bosch_path_export+"/"+base, Bosch_path_export+"/"+"BoschClean"+base)
+    sound = AudioSegment.from_file(file="New"+"clean"+"Grab"+str(i)+".wav",format="wav")
+    AudioSegment.converter="ffmpeg.exe"
+    AudioSegment.ffmpeg="ffmpeg.exe"
+    AudioSegment.ffprobe="ffprobe.exe"
+
+    StartTime=STARTSEC*1000
+    EndTime=ENDSEC*1000
+
+    extract=sound[StartTime:EndTime]
+    extract.export(base, format="wav")
+    y,S_db,sr=ClaseAudio2.CargaeImagenAudio.LoadAudio_Turn2Decibels(base)#"newfile"+str(i)+".wav"
+    if res=='ok' or res=='OK' or res=='Ok':
+        shutil.move(base, Bosch_path_export+"/"+base)
+        os.rename(Bosch_path_export+"/"+base, Bosch_path_export+"/"+"BoschClean"+base)
+    else:
+        shutil.move(base, BlackDecker_path_export+"/"+base)
+        os.rename(BlackDecker_path_export+"/"+base, BlackDecker_path_export+"/"+"BlackDeckerClean"+base) 
+    os.remove("clean"+"Grab"+str(i)+".wav")  
+    os.remove("New"+"clean"+"Grab"+str(i)+".wav") 
+
+    ClaseFeatures.Features.waveform(y,sr,res,archivo)
+
+    ClaseFeatures.Features.amplitudeenvelope(y,sr,res,archivo)
+
+    t=ClaseFeatures.Features.RootMeanSquaredError(y,sr,res,archivo)
+
+    ClaseFeatures.Features.ZeroCrossingRate(y,res,t,archivo)
+
+    ClaseFeatures.Features.FreqAmp(y,sr,res,archivo)
+
+    ClaseFeatures.Features.Spectrogram(S_db,sr,res,archivo)
+
+    ClaseFeatures.Features.GreySpectrogram(S_db,sr,res,archivo)
+
+    ClaseFeatures.Features.MelSpectrogram(y,sr,res,archivo)
+
+    ClaseFeatures.Features.Chromagram(y,sr,res,archivo)
+
+    mfccs=ClaseFeatures.Features.MFCCs(y,sr,res,archivo)
+
+    ClaseFeatures.Features.DeltaMFCCs(mfccs,sr,res,archivo)
+
+    ClaseFeatures.Features.Delta2MFCCs(mfccs,sr,res,archivo)
+
+    ClaseFeatures.Features.BandEnergyRatio(y,sr,res,archivo)
+
+    ClaseFeatures.Features.SpectralCentroid(y,sr,t,res,archivo)
+
+    ClaseFeatures.Features.Bandwidht(y,sr,t,res,archivo)
+
+    ClaseFeatures.Features.SpectralContrast(y,sr,res,archivo)
+
+    S=ClaseFeatures.Features.SpectralRollOff(y,S_db,sr,res,archivo)
+
+    ClaseFeatures.Features.PolyFeatures(S,sr,res,archivo)
+
+    ClaseFeatures.Features.Tonnetz(y,sr,res,archivo)
+
 else:
-     shutil.move(base, BlackDecker_path_export+"/"+base)
-     os.rename(BlackDecker_path_export+"/"+base, BlackDecker_path_export+"/"+"BlackDeckerClean"+base) 
-os.remove("clean"+"Grab"+str(i)+".wav")  
-os.remove("New"+"clean"+"Grab"+str(i)+".wav") 
-
-ClaseFeatures.Features.waveform(y,sr,res,archivo)
-
-ClaseFeatures.Features.amplitudeenvelope(y,sr,res,archivo)
-
-t=ClaseFeatures.Features.RootMeanSquaredError(y,sr,res,archivo)
-
-ClaseFeatures.Features.ZeroCrossingRate(y,res,t,archivo)
-
-ClaseFeatures.Features.FreqAmp(y,sr,res,archivo)
-
-ClaseFeatures.Features.Spectrogram(S_db,sr,res,archivo)
-
-ClaseFeatures.Features.GreySpectrogram(S_db,sr,res,archivo)
-
-ClaseFeatures.Features.MelSpectrogram(y,sr,res,archivo)
-
-ClaseFeatures.Features.Chromagram(y,sr,res,archivo)
-
-mfccs=ClaseFeatures.Features.MFCCs(y,sr,res,archivo)
-
-ClaseFeatures.Features.DeltaMFCCs(mfccs,sr,res,archivo)
-
-ClaseFeatures.Features.Delta2MFCCs(mfccs,sr,res,archivo)
-
-ClaseFeatures.Features.BandEnergyRatio(y,sr,res,archivo)
-
-ClaseFeatures.Features.SpectralCentroid(y,sr,t,res,archivo)
-
-ClaseFeatures.Features.Bandwidht(y,sr,t,res,archivo)
-
-ClaseFeatures.Features.SpectralContrast(y,sr,res,archivo)
-
-S=ClaseFeatures.Features.SpectralRollOff(y,S_db,sr,res,archivo)
-
-ClaseFeatures.Features.PolyFeatures(S,sr,res,archivo)
-
-ClaseFeatures.Features.Tonnetz(y,sr,res,archivo)
+    print("Grabe un audio de mas de un segundo y vuelva a usar el programa")
+    os.remove("clean"+"Grab"+str(i)+".wav")  
+    os.remove("New"+"clean"+"Grab"+str(i)+".wav") 
