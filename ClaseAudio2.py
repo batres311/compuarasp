@@ -10,6 +10,7 @@ import scipy.io.wavfile as waves #libreria importante para los datos del audio
 import shutil #libreria para mover archivos a diferentes carpetas
 from pydub import AudioSegment
 import RPi.GPIO as GPIO
+import time
 
 with open("Variables.yaml", "r") as f:
     yaml_content = yaml.full_load(f)
@@ -133,7 +134,8 @@ class CargaeImagenAudio():
                     data=stream.read(FRAMESPERBUFFER)
                     frames.append(data)
 
-                    if GPIO.input(Detener)==0: 
+                    if GPIO.input(Detener)==0:
+                        time.sleep(0.2) 
                         stream.stop_stream()    #Detener grabacion
                         stream.close()          #Cerramos stream
                         audio.terminate()
@@ -149,6 +151,23 @@ class CargaeImagenAudio():
                         waveFile.close() #Cerramos el archivo
                         return path_raw, path_clean, path_day
                         break
+                break
+    
+    def loop2():
+        while True:
+            if GPIO.input(Empezar)==False:
+                GPIO.remove_event_detect(Empezar)
+                GPIO.wait_for_edge(Empezar,GPIO.FALLING)
+                res="ok"
+                print("La grabacion se ha clasificado como ok")
+                return res
+                break
+            if GPIO.input(Detener)==False: 
+                GPIO.remove_event_detect(Detener)
+                GPIO.wait_for_edge(Detener,GPIO.FALLING)
+                res="nok"
+                print("La grabacion se ha clasificado como nok")
+                return res
                 break
 
     def AcomodoPathRAW(path_espacio,path_estado,path_programa,archivo):

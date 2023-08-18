@@ -21,6 +21,7 @@ import librosa
 from ctypes import *
 from contextlib import contextmanager
 import pyaudio #Libreria que ayuda para obtener el audio y darle formato
+import RPi.GPIO as GPIO
 
 
 with open("Variables.yaml", "r") as f:
@@ -36,6 +37,8 @@ NOMBREGRABACION=yaml_content["NomGrabacion"]
 LINEA=yaml_content["Linea"]
 ESTACION=yaml_content["Estacion"]
 AUDIOS=yaml_content["Audios"]
+Empezar = yaml_content["BotonGrabar"]
+Detener = yaml_content["BotonDetener"]
 
 FechaHoraAUDIO=datetime.now()
 year = str(FechaHoraAUDIO.year)
@@ -72,7 +75,11 @@ if __name__ == '__main__':
                                                                      ESTACION,AUDIOS,path_actual)	
     print("La grabacion ha terminado ") #Mensaje de fin de grabación
     #winsound.PlaySound(archivo,winsound.SND_FILENAME)
-    res=input("Ingresa ok si es buena grabacion y nok si es mala: ")
+    
+    print("Oprime el boton G para indicar que la grabacion es ok o D para indicar que nok: ")
+
+
+    res=ClaseAudio2.CargaeImagenAudio.loop2()
     signal,S_db1,sample_rate=ClaseAudio2.CargaeImagenAudio.LoadAudio_Turn2Decibels(archivo)
     base= archivo  
 
