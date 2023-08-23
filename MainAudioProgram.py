@@ -80,11 +80,12 @@ if __name__ == '__main__':
     print("La grabacion ha terminado ") #Mensaje de fin de grabación
     #winsound.PlaySound(archivo,winsound.SND_FILENAME)
     
-    GPIO.output(ESPERA,1)
+    #GPIO.output(ESPERA,1)
     print("Oprime el boton G para indicar que la grabacion es ok o D para indicar que nok: ")
 
 
     res=ClaseAudio2.CargaeImagenAudio.loop2()
+    GPIO.output(ESPERA,1)
     signal,S_db1,sample_rate=ClaseAudio2.CargaeImagenAudio.LoadAudio_Turn2Decibels(archivo)
     base= archivo  
 

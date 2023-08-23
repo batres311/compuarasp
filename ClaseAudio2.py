@@ -167,6 +167,10 @@ class CargaeImagenAudio():
     
     def loop2():
         while True:
+            GPIO.output(ESPERA,1)
+            time.sleep(0.25)
+            GPIO.output(ESPERA,0)
+            time.sleep(0.25)
             if GPIO.input(Empezar)==False:
                 GPIO.remove_event_detect(Empezar)
                 GPIO.wait_for_edge(Empezar,GPIO.FALLING)
