@@ -86,3 +86,6 @@ Split_frequency: 2000
 NomGrabacion: "Audio"
 BotonGrabar: 11
 BotonDetener: 13
+Grabar: 15
+Listo: 18
+Espera: 22

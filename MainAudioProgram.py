@@ -39,6 +39,9 @@ ESTACION=yaml_content["Estacion"]
 AUDIOS=yaml_content["Audios"]
 Empezar = yaml_content["BotonGrabar"]
 Detener = yaml_content["BotonDetener"]
+GRABAR=yaml_content["Grabar"]
+LISTO=yaml_content["Listo"]
+ESPERA=yaml_content["Espera"]
 
 FechaHoraAUDIO=datetime.now()
 year = str(FechaHoraAUDIO.year)
@@ -68,7 +71,8 @@ if __name__ == '__main__':
     with noalsaerr():
         audio=pyaudio.PyAudio() #Iniciamos pyaudio
 
-    ClaseAudio2.CargaeImagenAudio.setup() 
+    ClaseAudio2.CargaeImagenAudio.setup()
+    GPIO.output(LISTO,1) 
     path_actual=os.getcwd()    
     print("Listo para grabar presiona el boton de grabar")
     path_raw,path_clean, path_day=ClaseAudio2.CargaeImagenAudio.loop(audio,archivo,year,month,day,LINEA,
@@ -76,6 +80,7 @@ if __name__ == '__main__':
     print("La grabacion ha terminado ") #Mensaje de fin de grabación
     #winsound.PlaySound(archivo,winsound.SND_FILENAME)
     
+    GPIO.output(ESPERA,1)
     print("Oprime el boton G para indicar que la grabacion es ok o D para indicar que nok: ")
 
 
@@ -132,5 +137,6 @@ if __name__ == '__main__':
         S=ClaseFeatures.Features.SpectralRollOff(y,S_db,sr,res,archivo,path_day,path_actual)
         ClaseFeatures.Features.PolyFeatures(S,sr,res,archivo,path_day,path_actual)
         ClaseFeatures.Features.Tonnetz(y,sr,res,archivo,path_day,path_actual)
+        GPIO.output(ESPERA,0)
     else:
         print("Grabe un audio de mas de 1 segundo y vuelva a usar el programa")

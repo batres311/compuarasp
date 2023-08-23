@@ -24,6 +24,9 @@ CLEAN = yaml_content["Clean"]
 PRODUCTO=yaml_content["Producto"]
 Empezar = yaml_content["BotonGrabar"]
 Detener = yaml_content["BotonDetener"]
+GRABAR=yaml_content["Grabar"]
+LISTO=yaml_content["Listo"]
+ESPERA=yaml_content["Espera"]
 
 class CargaeImagenAudio():
     def __init__(self,clip,y,rate,threshold,path_export1,path_export2,res,
@@ -56,6 +59,9 @@ class CargaeImagenAudio():
         # Set Green Led Pin mode to output
         GPIO.setup(Detener, GPIO.IN, pull_up_down=GPIO.PUD_UP)      # Set Red Led Pin mode to output
         GPIO.setup(Empezar, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
+        GPIO.setup(GRABAR, GPIO.OUT)
+        GPIO.setup(LISTO, GPIO.OUT)
+        GPIO.setup(ESPERA, GPIO.OUT)
 
     def GuardaAudio(year, month,day,linea,estacion,audios,path_programa):
         if not os.path.exists(PRODUCTO): 
@@ -125,7 +131,9 @@ class CargaeImagenAudio():
                 stream=audio.open(format=pyaudio.paInt16,channels=CHANNELS,
                                     rate=FRAME_RATE,input=True, #rate es la frecuencia de muestreo 44.1KHz
                                     frames_per_buffer=FRAMESPERBUFFER)
-                            
+                GPIO.output(LISTO,0)
+                time.sleep(0.2) 
+                GPIO.output(GRABAR,1)           
                 print("Grabando ...") #Mensaje de que se inicio a grabar
                 print("Presiona el boton detener para parar carnal")
                 frames=[] #Aqui guardamos la grabacion
@@ -139,6 +147,10 @@ class CargaeImagenAudio():
                         stream.stop_stream()    #Detener grabacion
                         stream.close()          #Cerramos stream
                         audio.terminate()
+
+                        time.sleep(0.5) 
+                        GPIO.output(GRABAR,0)
+                        time.sleep(0.2) 
                         #print("La grabacion ha terminado ") #Mensaje de fin de grabación
                         path_raw,path_clean,path_day=CargaeImagenAudio.GuardaAudio(year,month,day,
                                                                                     linea,estacion,audios,path_programa)
