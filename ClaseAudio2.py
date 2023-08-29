@@ -166,21 +166,19 @@ class CargaeImagenAudio():
                 break
     
     def loop2():
+        GPIO.add_event_detect(Empezar,GPIO.FALLING)
+        GPIO.add_event_detect(Detener,GPIO.FALLING)
         while True:
             GPIO.output(ESPERA,1)
             time.sleep(0.25)
             GPIO.output(ESPERA,0)
             time.sleep(0.25)
-            if GPIO.input(Empezar)==False:
-                GPIO.remove_event_detect(Empezar)
-                GPIO.wait_for_edge(Empezar,GPIO.FALLING)
+            if GPIO.event_detected(Empezar):
                 res="ok"
                 print("La grabacion se ha clasificado como ok")
                 return res
                 break
-            if GPIO.input(Detener)==False: 
-                GPIO.remove_event_detect(Detener)
-                GPIO.wait_for_edge(Detener,GPIO.FALLING)
+            if GPIO.event_detected(Detener):
                 res="nok"
                 print("La grabacion se ha clasificado como nok")
                 return res
