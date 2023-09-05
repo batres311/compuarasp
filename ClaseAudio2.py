@@ -172,11 +172,15 @@ class CargaeImagenAudio():
             GPIO.output(ESPERA,0)
             time.sleep(0.25)
             if GPIO.event_detected(Empezar):
+                GPIO.remove_event_detect(Empezar)
+                GPIO.remove_event_detect(Detener)
                 res="ok"
                 print("La grabacion se ha clasificado como ok")
                 return res
                 break
             if GPIO.event_detected(Detener):
+                GPIO.remove_event_detect(Detener)
+                GPIO.remove_event_detect(Empezar)
                 res="nok"
                 print("La grabacion se ha clasificado como nok")
                 return res

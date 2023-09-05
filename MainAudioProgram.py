@@ -53,7 +53,12 @@ FechaHoraAUDIO=FechaHoraAUDIO.replace(microsecond=0)
 FechaHoraAUDIOFormat=FechaHoraAUDIO.strftime("%Y_%m_%d_%H_%M_%S")
 archivo=NOMBREGRABACION+"_"+FechaHoraAUDIOFormat +".wav"
 
+
 if __name__ == '__main__':
+    ClaseAudio2.CargaeImagenAudio.setup() 
+    path_actual=os.getcwd() 
+    #GPIO.add_event_detect(Empezar,GPIO.FALLING)
+    #GPIO.add_event_detect(Detener,GPIO.FALLING)
     ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
 
     def py_error_handler(filename, line, function, err, fmt):
@@ -67,77 +72,89 @@ if __name__ == '__main__':
         asound.snd_lib_error_set_handler(c_error_handler)
         yield
         asound.snd_lib_error_set_handler(None)
+    while True:
 
-    with noalsaerr():
-        audio=pyaudio.PyAudio() #Iniciamos pyaudio
+        with noalsaerr():
+                audio=pyaudio.PyAudio() #Iniciamos pyaudio
+        try:
 
-    ClaseAudio2.CargaeImagenAudio.setup()
-    GPIO.output(LISTO,1) 
-    path_actual=os.getcwd()    
-    print("Listo para grabar presiona el boton de grabar")
-    path_raw,path_clean, path_day=ClaseAudio2.CargaeImagenAudio.loop(audio,archivo,year,month,day,LINEA,
-                                                                     ESTACION,AUDIOS,path_actual)	
-    print("La grabacion ha terminado ") #Mensaje de fin de grabación
-    #winsound.PlaySound(archivo,winsound.SND_FILENAME)
-    
-    #GPIO.output(ESPERA,1)
-    print("Oprime el boton G para indicar que la grabacion es ok o D para indicar que nok: ")
+            GPIO.output(LISTO,1)   
+            print("Listo para grabar presiona g")
+            path_raw,path_clean, path_day=ClaseAudio2.CargaeImagenAudio.loop(audio,archivo,year,month,day,LINEA,
+                                                                            ESTACION,AUDIOS,path_actual)	
+            print("La grabacion ha terminado ") #Mensaje de fin de grabación
+            #winsound.PlaySound(archivo,winsound.SND_FILENAME)
+            
 
 
-    res=ClaseAudio2.CargaeImagenAudio.loop2()
-    GPIO.output(ESPERA,1)
-    signal,S_db1,sample_rate=ClaseAudio2.CargaeImagenAudio.LoadAudio_Turn2Decibels(archivo)
-    base= archivo  
+            print("Oprime el boton G para indicar que la grabacion es ok o D para indicar que nok: ")
 
-    if res=='ok' or res=='OK' or res=='Ok':
-        ClaseAudio2.CargaeImagenAudio.AcomodoPathRAW(path_raw,Audiobueno_path_export,path_actual,archivo)
-    else:
-        ClaseAudio2.CargaeImagenAudio.AcomodoPathRAW(path_raw,Audiomalo_path_export,path_actual,archivo)
 
-    mask = ClaseAudio2.CargaeImagenAudio.envelope(signal,sample_rate, 0.003)#Bosch=0.004,0.0025
-    waves.write(filename="clean"+"Grab"+".wav", rate=sample_rate, data=signal[mask])
-    filee="clean"+"Grab"+".wav"
-    signal1, rate1 = librosa.load("clean"+"Grab"+".wav", sr=44100)
-    mask2 = ClaseAudio2.CargaeImagenAudio.envelope2(signal1, rate1, 0.016)#Bosch=0.0095,0.0097
-    waves.write(filename="New"+"clean"+"Grab"+".wav", rate=rate1, data=signal1[mask2])
-    filee2="New"+"clean"+"Grab"+".wav"
+            res=ClaseAudio2.CargaeImagenAudio.loop2()
+            GPIO.output(ESPERA,1)
+            signal,S_db1,sample_rate=ClaseAudio2.CargaeImagenAudio.LoadAudio_Turn2Decibels(archivo)
+            base= archivo  
 
-    if len(mask2)>= 44100: #Multiplicar frame rate por el endsec
-        sound = AudioSegment.from_file(file="New"+"clean"+"Grab"+".wav",format="wav")
-        AudioSegment.converter="ffmpeg.exe"
-        AudioSegment.ffmpeg="ffmpeg.exe"
-        AudioSegment.ffprobe="ffprobe.exe"
-        StartTime=STARTSEC*1000
-        EndTime=ENDSEC *1000
-        extract=sound[StartTime:EndTime]
-        
-        if res=='ok' or res=='OK' or res=='Ok':
-            ClaseAudio2.CargaeImagenAudio.AcomodoPathClean(path_clean,Audiobueno_path_export,extract,base)
-        else:
-            ClaseAudio2.CargaeImagenAudio.AcomodoPathClean(path_clean,Audiomalo_path_export,extract,base)
-        y,S_db,sr=ClaseAudio2.CargaeImagenAudio.LoadAudio_Turn2Decibels(base)#"newfile"+str(i)+".wav"
-        os.chdir(path_actual)
-        os.remove("clean"+"Grab"+".wav")  
-        os.remove("New"+"clean"+"Grab"+".wav") 
-        ClaseFeatures.Features.waveform(y,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.amplitudeenvelope(y,sr,res,archivo,path_day,path_actual)
-        t=ClaseFeatures.Features.RootMeanSquaredError(y,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.ZeroCrossingRate(y,sr,res,t,archivo,path_day,path_actual)
-        ClaseFeatures.Features.FreqAmp(y,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.Spectrogram(S_db,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.GreySpectrogram(S_db,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.MelSpectrogram(y,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.Chromagram(y,sr,res,archivo,path_day,path_actual)
-        mfccs=ClaseFeatures.Features.MFCCs(y,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.DeltaMFCCs(mfccs,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.Delta2MFCCs(mfccs,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.BandEnergyRatio(y,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.SpectralCentroid(y,sr,t,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.Bandwidht(y,sr,t,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.SpectralContrast(y,sr,res,archivo,path_day,path_actual)
-        S=ClaseFeatures.Features.SpectralRollOff(y,S_db,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.PolyFeatures(S,sr,res,archivo,path_day,path_actual)
-        ClaseFeatures.Features.Tonnetz(y,sr,res,archivo,path_day,path_actual)
-        GPIO.output(ESPERA,0)
-    else:
-        print("Grabe un audio de mas de 1 segundo y vuelva a usar el programa")
+            if res=='ok' or res=='OK' or res=='Ok':
+                ClaseAudio2.CargaeImagenAudio.AcomodoPathRAW(path_raw,Audiobueno_path_export,path_actual,archivo)
+            else:
+                ClaseAudio2.CargaeImagenAudio.AcomodoPathRAW(path_raw,Audiomalo_path_export,path_actual,archivo)
+
+            mask = ClaseAudio2.CargaeImagenAudio.envelope(signal,sample_rate, 0.003)#Bosch=0.004,0.0025
+            waves.write(filename="clean"+"Grab"+".wav", rate=sample_rate, data=signal[mask])
+            filee="clean"+"Grab"+".wav"
+            signal1, rate1 = librosa.load("clean"+"Grab"+".wav", sr=44100)
+            mask2 = ClaseAudio2.CargaeImagenAudio.envelope2(signal1, rate1, 0.016)#Bosch=0.0095,0.0097
+            waves.write(filename="New"+"clean"+"Grab"+".wav", rate=rate1, data=signal1[mask2])
+            filee2="New"+"clean"+"Grab"+".wav"
+
+            if len(mask2)>= 44100: #Multiplicar frame rate por el endsec
+                sound = AudioSegment.from_file(file="New"+"clean"+"Grab"+".wav",format="wav")
+                AudioSegment.converter="/bin/ffmpeg"
+                AudioSegment.ffmpeg="/bin/ffmpeg.exe"
+                AudioSegment.ffprobe="/bin/ffprobe.exe"
+                StartTime=STARTSEC*1000
+                EndTime=ENDSEC *1000
+                extract=sound[StartTime:EndTime]
+                
+                if res=='ok' or res=='OK' or res=='Ok':
+                    ClaseAudio2.CargaeImagenAudio.AcomodoPathClean(path_clean,Audiobueno_path_export,extract,base)
+                else:
+                    ClaseAudio2.CargaeImagenAudio.AcomodoPathClean(path_clean,Audiomalo_path_export,extract,base)
+                y,S_db,sr=ClaseAudio2.CargaeImagenAudio.LoadAudio_Turn2Decibels(base)#"newfile"+str(i)+".wav"
+                os.chdir(path_actual)
+                os.remove("clean"+"Grab"+".wav")  
+                os.remove("New"+"clean"+"Grab"+".wav") 
+                ClaseFeatures.Features.waveform(y,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.amplitudeenvelope(y,sr,res,archivo,path_day,path_actual)
+                t=ClaseFeatures.Features.RootMeanSquaredError(y,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.ZeroCrossingRate(y,sr,res,t,archivo,path_day,path_actual)
+                ClaseFeatures.Features.FreqAmp(y,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.Spectrogram(S_db,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.GreySpectrogram(S_db,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.MelSpectrogram(y,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.Chromagram(y,sr,res,archivo,path_day,path_actual)
+                mfccs=ClaseFeatures.Features.MFCCs(y,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.DeltaMFCCs(mfccs,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.Delta2MFCCs(mfccs,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.BandEnergyRatio(y,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.SpectralCentroid(y,sr,t,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.Bandwidht(y,sr,t,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.SpectralContrast(y,sr,res,archivo,path_day,path_actual)
+                S=ClaseFeatures.Features.SpectralRollOff(y,S_db,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.PolyFeatures(S,sr,res,archivo,path_day,path_actual)
+                ClaseFeatures.Features.Tonnetz(y,sr,res,archivo,path_day,path_actual)
+                GPIO.output(ESPERA,0)
+                GPIO.output(LISTO,0) 
+                GPIO.output(GRABAR,0)
+                
+
+                
+            else:
+                print("Grabe un audio de mas de 1 segundo y vuelva a usar el programa")
+        except KeyboardInterrupt:
+            GPIO.output(ESPERA,0)
+            GPIO.output(LISTO,0) 
+            GPIO.output(GRABAR,0)
+            print("Programa terminado")
+            break
