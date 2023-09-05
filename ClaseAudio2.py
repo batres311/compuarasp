@@ -27,6 +27,7 @@ Detener = yaml_content["BotonDetener"]
 GRABAR=yaml_content["Grabar"]
 LISTO=yaml_content["Listo"]
 ESPERA=yaml_content["Espera"]
+DURACION=yaml_content["duracion"]
 
 class CargaeImagenAudio():
     def __init__(self,clip,y,rate,threshold,path_export1,path_export2,res,
@@ -133,37 +134,34 @@ class CargaeImagenAudio():
                                     frames_per_buffer=FRAMESPERBUFFER)
                 GPIO.output(LISTO,0)
                 time.sleep(0.2) 
-                GPIO.output(GRABAR,1)           
+                GPIO.output(GRABAR,1)
+                            
                 print("Grabando ...") #Mensaje de que se inicio a grabar
-                print("Presiona el boton detener para parar carnal")
                 frames=[] #Aqui guardamos la grabacion
                 #for i in range(0,int(44100/1024*duracion)):
-                while True:
+                for i in range(0,int(FRAME_RATE/FRAMESPERBUFFER*DURACION)):
                     data=stream.read(FRAMESPERBUFFER)
                     frames.append(data)
 
-                    if GPIO.input(Detener)==0:
-                        time.sleep(0.2) 
-                        stream.stop_stream()    #Detener grabacion
-                        stream.close()          #Cerramos stream
-                        audio.terminate()
+                    
+                stream.stop_stream()    #Detener grabacion
+                stream.close()          #Cerramos stream
+                audio.terminate()
+                time.sleep(0.5) 
+                GPIO.output(GRABAR,0)
+                time.sleep(0.2) 
+                
+                #print("La grabacion ha terminado ") #Mensaje de fin de grabación
+                path_raw,path_clean,path_day=CargaeImagenAudio.GuardaAudio(year,month,day,
+                                                                            linea,estacion,audios,path_programa)
 
-                        time.sleep(0.5) 
-                        GPIO.output(GRABAR,0)
-                        time.sleep(0.2) 
-                        #print("La grabacion ha terminado ") #Mensaje de fin de grabación
-                        path_raw,path_clean,path_day=CargaeImagenAudio.GuardaAudio(year,month,day,
-                                                                                    linea,estacion,audios,path_programa)
-
-                        waveFile=wave.open(archivo,'wb') #Creamos nuestro archivo
-                        waveFile.setnchannels(CHANNELS) #Se designan los canales
-                        waveFile.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-                        waveFile.setframerate(FRAME_RATE) #Pasamos la frecuencia de muestreo
-                        waveFile.writeframes(b''.join(frames))
-                        waveFile.close() #Cerramos el archivo
-                        return path_raw, path_clean, path_day
-                        break
-                break
+                waveFile=wave.open(archivo,'wb') #Creamos nuestro archivo
+                waveFile.setnchannels(CHANNELS) #Se designan los canales
+                waveFile.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+                waveFile.setframerate(FRAME_RATE) #Pasamos la frecuencia de muestreo
+                waveFile.writeframes(b''.join(frames))
+                waveFile.close() #Cerramos el archivo
+                return path_raw, path_clean, path_day
     
     def loop2():
         GPIO.add_event_detect(Empezar,GPIO.FALLING)
