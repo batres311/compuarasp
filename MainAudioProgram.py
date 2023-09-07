@@ -22,6 +22,7 @@ from ctypes import *
 from contextlib import contextmanager
 import pyaudio #Libreria que ayuda para obtener el audio y darle formato
 import RPi.GPIO as GPIO
+import matplotlib as plt
 
 
 with open("Variables.yaml", "r") as f:
@@ -43,17 +44,6 @@ GRABAR=yaml_content["Grabar"]
 LISTO=yaml_content["Listo"]
 ESPERA=yaml_content["Espera"]
 
-FechaHoraAUDIO=datetime.now()
-year = str(FechaHoraAUDIO.year)
-month = str(FechaHoraAUDIO.month)
-day = str(FechaHoraAUDIO.day)
-if FechaHoraAUDIO.month <= 9:
-    month = "0{}".format(FechaHoraAUDIO.month)
-FechaHoraAUDIO=FechaHoraAUDIO.replace(microsecond=0)
-FechaHoraAUDIOFormat=FechaHoraAUDIO.strftime("%Y_%m_%d_%H_%M_%S")
-archivo=NOMBREGRABACION+"_"+FechaHoraAUDIOFormat +".wav"
-
-
 if __name__ == '__main__':
     ClaseAudio2.CargaeImagenAudio.setup() 
     path_actual=os.getcwd() 
@@ -73,6 +63,15 @@ if __name__ == '__main__':
         yield
         asound.snd_lib_error_set_handler(None)
     while True:
+        FechaHoraAUDIO=datetime.now()
+        year = str(FechaHoraAUDIO.year)
+        month = str(FechaHoraAUDIO.month)
+        day = str(FechaHoraAUDIO.day)
+        if FechaHoraAUDIO.month <= 9:
+            month = "0{}".format(FechaHoraAUDIO.month)
+        FechaHoraAUDIO=FechaHoraAUDIO.replace(microsecond=0)
+        FechaHoraAUDIOFormat=FechaHoraAUDIO.strftime("%Y_%m_%d_%H_%M_%S")
+        archivo=NOMBREGRABACION+"_"+FechaHoraAUDIOFormat +".wav"
 
         with noalsaerr():
                 audio=pyaudio.PyAudio() #Iniciamos pyaudio
@@ -125,6 +124,8 @@ if __name__ == '__main__':
                 os.chdir(path_actual)
                 os.remove("clean"+"Grab"+".wav")  
                 os.remove("New"+"clean"+"Grab"+".wav") 
+
+                plt.rcParams.update({'figure.max_open_warning': 0})
                 ClaseFeatures.Features.waveform(y,sr,res,archivo,path_day,path_actual)
                 ClaseFeatures.Features.amplitudeenvelope(y,sr,res,archivo,path_day,path_actual)
                 t=ClaseFeatures.Features.RootMeanSquaredError(y,sr,res,archivo,path_day,path_actual)

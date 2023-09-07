@@ -66,7 +66,7 @@ class Features():
         ax.set(title='WAVEFORM') 
         #The first strips off any trailing slashes, the second gives you the last part of the path. 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual, WAVEFORM_path_export1,WAVEFORM_path_export2,res,'waveform',fig, archivo)
-        plt.close()
+        plt.close(plt.gcf())
         
 
     def amplitudeenvelope(y,sr,res,archivo,path_day,path_actual):
@@ -85,7 +85,7 @@ class Features():
         #plt.ylim((-1, 1))
         ax.set(title="Amplitude envelope")
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,AMPLITUDEENV_path_export1,AMPLITUDEENV_path_export2,res,'AmplitudEnvelope',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def RootMeanSquaredError(y,sr,res,archivo,path_day,path_actual):
         
@@ -101,7 +101,7 @@ class Features():
         #plt.ylim((-1, 1))
         ax.set(title="RMS energy")
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,RMSE_path_export1,RMSE_path_export2,res,'RMSE',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
         return t
 
@@ -116,7 +116,7 @@ class Features():
         plt.ylim(0, 1)
         ax.set(title="Zero Croosing Rate")
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,ZCR_path_export1,ZCR_path_export2,res,'ZCR',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def FreqAmp(y,sr, res,archivo,path_day,path_actual):
         
@@ -135,7 +135,7 @@ class Features():
         plt.ylabel("Magnitude")
         bx.set(title="Frequency vs Amplitude")
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,FvsA_path_export1,FvsA_path_export2,res,'FvsA',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def Spectrogram(S_db, sr,res,archivo,path_day,path_actual):
         
@@ -147,7 +147,7 @@ class Features():
         plt.colorbar(format="%+2.f")
         ax.set(title='SPECTROGRAM') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,SPECTROGRAM_path_export1,SPECTROGRAM_path_export2,res,'Spectrogram',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def GreySpectrogram(S_db,sr, res,archivo,path_day,path_actual):
         
@@ -158,7 +158,7 @@ class Features():
         plt.colorbar(format="%+2.f")
         ax.set(title='GREY SPECTROGRAM') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,GREYSPECTROGRAM_path_export1,GREYSPECTROGRAM_path_export2,res,'Grey Spectrogram',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def MelSpectrogram(y,sr, res,archivo,path_day,path_actual):
         
@@ -175,7 +175,7 @@ class Features():
         plt.colorbar(format="%+2.f")
         ax.set(title='MEL SPECTROGRAM') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,MELSPECTROGRAM_path_export1,MELSPECTROGRAM_path_export2,res,'MelSpectrogram',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
         
     def Chromagram(y,sr,res,archivo,path_day,path_actual):
         
@@ -186,7 +186,7 @@ class Features():
         plt.colorbar(format="%+2.f")
         ax.set(title='CHROMAGRAM') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,CHROMAGRAM_path_export1,CHROMAGRAM_path_export2,res,'Chromogram',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def MFCCs(y,sr,res,archivo,path_day,path_actual):
         
@@ -197,7 +197,7 @@ class Features():
         plt.colorbar(format="%+2.f")
         ax.set(title='Mel-frequency cepstral coefficients (MFCCs)') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,MFCC_path_export1,MFCC_path_export2,res,'MFCCs',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
         return mfccs
 
@@ -211,7 +211,7 @@ class Features():
         plt.colorbar(format="%+2.f")
         ax.set(title='Delta Mel-frequency cepstral coefficients (MFCCs)') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,DELTA_MFCC_path_export1,DELTA_MFCC_path_export2,res,'DeltaMFCCs',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def Delta2MFCCs(mfccs,sr,res,archivo,path_day,path_actual):
         
@@ -223,7 +223,7 @@ class Features():
         plt.colorbar(format="%+2.f")
         ax.set(title='Delta2 Mel-frequency cepstral coefficients (MFCCs)') 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,DELTA2_MFCC_path_export1,DELTA2_MFCC_path_export2,res,'Delta2MFCCs',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def BandEnergyRatio(y,sr,res,archivo,path_day,path_actual):
         
@@ -243,7 +243,7 @@ class Features():
         plt.plot(t, ber_y, color="b")
         ax.set(title="Band Energy Ratio")
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,BER_path_export1,BER_path_export2,res,'Band Energy Ratio',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def SpectralCentroid(y,sr,t,res,archivo,path_day,path_actual):
         sc_y = librosa.feature.spectral_centroid(y=y, sr=sr, n_fft=FRAME_SIZE, hop_length=HOP_LENGTH)[0]
@@ -253,7 +253,7 @@ class Features():
         plt.plot(t, sc_y, color='b')
         ax.set(title="Spectral Centroid")
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,SpecCent_path_export1,SpecCent_path_export2,res,'Spectral Centroid',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def Bandwidht(y,sr,t,res,archivo,path_day,path_actual):
         
@@ -265,7 +265,7 @@ class Features():
         plt.plot(t, ban_y, color='b')
         ax.set(title="Bandwidth")
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,Bandwidth_path_export1,Bandwidth_path_export2,res,'Bandwidth',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def SpectralContrast(y,sr,res,archivo,path_day,path_actual):
         
@@ -283,7 +283,7 @@ class Features():
         fig.colorbar(img2, ax=[ax[1]])
         ax[1].set(ylabel='Frequency bands', title='Spectral contrast')
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,SpecContrast_path_export1,SpecContrast_path_export2,res,'Spectral Contrast',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def SpectralRollOff(y,S_db,sr,res,archivo,path_day,path_actual):
         # Spectral Flatness
@@ -314,7 +314,7 @@ class Features():
         ax.legend(loc='lower right')
         ax.set(title='log Power spectrogram')
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,SpecRollOff_path_export1,SpecRollOff_path_export2,res,'Spectral Rolloff',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
         return S
 
@@ -343,7 +343,7 @@ class Features():
         librosa.display.specshow(librosa.amplitude_to_db(S, ref=np.max),
                                 y_axis='log', x_axis='time', ax=ax[3],sr=sr)
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,PolyFeatures_path_export1,PolyFeatures_path_export2,res,'Poly features',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
     def Tonnetz(y,sr,res,archivo,path_day,path_actual):
         
@@ -362,7 +362,7 @@ class Features():
         fig.colorbar(img2, ax=[ax[1]])
 
         ClaseAudio2.CargaeImagenAudio.guardarimagen(path_day,path_actual,Tonnetz_path_export1,Tonnetz_path_export2,res,'Tonnetz',fig,archivo)
-        plt.close()
+        plt.close(plt.gcf())
 
 class Audico(Features):
     def __init__(self, y, sr, frame_size, hop_lenght,split_frequency,num_frequency_bins):
